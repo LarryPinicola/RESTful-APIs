@@ -11,15 +11,14 @@ const port = 4400;
 // middleware
 app.use(bodyParser.json())
 
-// synchronize with db
-sequelize.sync().then(() => {
-    console.log('Database & table connected');
-}).catch(err => console.log('Error ' + err));
-
 // routes
 app.use('/api/auth', authRoutes)
 app.use('/api', userRoutes)
 
 app.listen(port, () => {
+    // synchronize with db
+    sequelize.sync().then(() => {
+        console.log('Database & table connected');
+    }).catch(err => console.log('Error ' + err));
     console.log(`Server running on http://localhost:${port}/`);
 });
