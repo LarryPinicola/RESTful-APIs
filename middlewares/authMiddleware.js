@@ -12,6 +12,15 @@ const authenticateToken = (req, res, next) => {
     } catch (err) {
         res.status(400).json({ error: 'Invalid token' })
     }
+};
+
+const authorizeRole = (roles) => {
+    return (req, res, next) => {
+        if (!roles.includes(req.user.role)) {
+            return res.status(403).json({ error: 'Forbidden' })
+        }
+        next();
+    }
 }
 
-module.exports = authenticateToken;
+module.exports = { authenticateToken, authorizeRole };

@@ -6,10 +6,10 @@ const SECRET_KEY = process.env.SECRET_KEY;
 
 exports.register = async (req, res) => {
     try {
-        const { username, email, phone, password } = req.body;
+        const { username, email, phone, role, password } = req.body;
         const hashedPassword = await bcrypt.hash(password, 10);
-        const user = User.create({username, email, phone, password: hashedPassword, createdAt: Date.now()})
-        return res.status(201).json({data: user});
+        const user = User.create({ username, email, phone, role: role || 'user', password: hashedPassword, createdAt: Date.now() })
+        return res.status(201).json({ success: true, message: "register successful", data: user });
     } catch (err) {
         return res.status(500).json({ error: err.message })
     }
@@ -26,7 +26,7 @@ exports.login = async (req, res) => {
         if (!validPassword) {
             return res.status(400).json({ error: 'Invalid email or password' })
         }
-        const token = jwt.sign({ id: user.id }, SECRET_KEY, { expiresIn: '1hr' })
+        const token = jwt.sign({ id: user.id, role: user.role }, SECRET_KEY, { expiresIn: '1hr' })
         res.json({ token });
     } catch (err) {
         res.status(500).json({ error: err.message })
