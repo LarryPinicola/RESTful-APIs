@@ -1,15 +1,39 @@
 const User = require('../models/User')
 const bcrypt = require('bcrypt')
 
-// get all users
+// users with pagination
 exports.getUsers = async (req, res) => {
     try {
-        const users = await User.findAll()
-        return res.json(users)
+        const page = parseInt(req.query.page) || 1;
+        const size = parseInt(req.query.size) || 3;
+
+        const { count, rows } = await User.findAndCountAll({
+            limit: size,
+            offset: (page - 1) * size
+        });
+
+        const totalPages = Math.ceil(count / size);
+
+        return res.json({
+            totalItems: count,
+            totalPages: totalPages,
+            currentPage: page,
+            users: rows
+        })
     } catch (err) {
-        res.status(500).json({ error: err.message })
+        return res.status(500).json({ error: err.message})
     }
 }
+
+// get all users
+// exports.getUsers = async (req, res) => {
+//     try {
+//         const users = await User.findAll()
+//         return res.json(users)
+//     } catch (err) {
+//         res.status(500).json({ error: err.message })
+//     }
+// }
 
 // get single user
 exports.getUser = async (req, res) => {
