@@ -7,10 +7,27 @@ exports.getUsers = async (req, res) => {
         const page = parseInt(req.query.page) || 1;
         const size = parseInt(req.query.size) || 3;
 
+        // Filter & Sort
+        const role = req.query.role || null;
+        const sort = req.query.sort || 'asc';
+
+        // Filter
+        const whereClause = role ? { role } : {};
+
+        // Sort username
+        const orderClause = [['username', sort]];
+
         const { count, rows } = await User.findAndCountAll({
+            where: whereClause,
+            order: orderClause,
             limit: size,
             offset: (page - 1) * size
-        });
+        })
+
+        // const { count, rows } = await User.findAndCountAll({
+        //     limit: size,
+        //     offset: (page - 1) * size
+        // });
 
         const totalPages = Math.ceil(count / size);
 
@@ -21,9 +38,11 @@ exports.getUsers = async (req, res) => {
             users: rows
         })
     } catch (err) {
-        return res.status(500).json({ error: err.message})
+        return res.status(500).json({ error: err.message })
     }
 }
+
+// url example - http://localhost:4400/api/users?page=1&size=10&role=admin&sort=asc
 
 // get all users
 // exports.getUsers = async (req, res) => {
